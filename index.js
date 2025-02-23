@@ -11,18 +11,22 @@ async function updateImage(imageURL) {
     const responseObj = await getImage(imageURL);
 
     const lastModified = new Date(responseObj.lastModified);
-    const nextUpdate = new Date(lastModified.getTime() + 10 * 60 * 1000);
+    const nextUpdate = new Date(lastModified.getTime() + minToMillisec(10));
+    const now = new Date(Date.now());
 
-    if (nextUpdate.getTime() < Date.now()) {
-      nextUpdate.setTime(Date.now() + 60 * 1000);
+    if (nextUpdate.getTime() < now.getTime()) {
+      //   console.log(
+      //     nextUpdate.toLocaleTimeString() + " < " + now.toLocaleTimeString()
+      //   );
+      nextUpdate.setTime(now.getTime() + minToMillisec(1));
     }
 
-    console.log(`Next update scheduled for: ${nextUpdate.toLocaleString()}`);
+    // console.log(`Next update scheduled for: ${nextUpdate.toLocaleString()}`);
 
     // Schedule the next update
     setTimeout(
       async () => await updateImage(imageURL),
-      nextUpdate.getTime() - Date.now()
+      nextUpdate.getTime() - now.getTime()
     );
 
     // set the image
@@ -57,6 +61,10 @@ async function getImage(imageURL, maxRetries = 3, retryCount = 0) {
       throw new Error(`Failed to fetch image after ${maxRetries} retries`);
     }
   }
+}
+
+function minToMillisec(minutes) {
+  return minutes * 60000;
 }
 
 main();
