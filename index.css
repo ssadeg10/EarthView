@@ -1,0 +1,22 @@
+body {
+  background-color: black;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  text-align: center;
+}
+#main {
+  max-height: 100vh;
+  max-width: 100%;
+}
+#bottom-left {
+  position: absolute;
+  z-index: 1;
+  top: 96%;
+  left: 2%;
+  color: white;
+  opacity: 40%;
+  a {
+    color: inherit;
+  }
+}
