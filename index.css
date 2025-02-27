@@ -20,3 +20,11 @@ body {
     color: inherit;
   }
 }
+#bottom-right {
+  position: absolute;
+  z-index: 1;
+  top: 96%;
+  right: 2%;
+  color: white;
+  opacity: 40%;
+}

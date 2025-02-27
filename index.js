@@ -7,6 +7,7 @@ async function main() {
 
 async function updateImage(imageURL) {
   const imageElement = document.getElementById("main");
+  const updateTimeElement = document.getElementById("update-time");
   try {
     const responseObj = await getImage(imageURL);
 
@@ -34,6 +35,8 @@ async function updateImage(imageURL) {
     const prevBlobURL = imageElement.src;
     imageElement.src = blobURL;
     URL.revokeObjectURL(prevBlobURL);
+
+    updateTimeElement.innerText = now.toLocaleTimeString();
   } catch (error) {
     console.error(error);
   }
