@@ -1,15 +1,12 @@
 async function main() {
-  const imageURL =
-    "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/FD/GEOCOLOR/latest.jpg";
-
-  await updateImage(imageURL);
+  await updateImage();
 }
 
-async function updateImage(imageURL) {
+async function updateImage() {
   const imageElement = document.getElementById("main");
   const updateTimeElement = document.getElementById("update-time");
   try {
-    const responseObj = await getImage(imageURL);
+    const responseObj = await getImage();
 
     const lastModified = new Date(responseObj.lastModified);
     const nextUpdate = new Date(lastModified.getTime() + minToMillisec(10));
@@ -26,7 +23,7 @@ async function updateImage(imageURL) {
 
     // Schedule the next update
     setTimeout(
-      async () => await updateImage(imageURL),
+      async () => await updateImage(),
       nextUpdate.getTime() - now.getTime()
     );
 
@@ -42,26 +39,43 @@ async function updateImage(imageURL) {
   }
 }
 
-async function getImage(imageURL, maxRetries = 3, retryCount = 0) {
+async function getImage(maxRetries = 3, retryCount = 0) {
+  var mainVersion = "/GOES16/ABI/FD/GEOCOLOR/latest.jpg";
+  var altVersion = "/GOES19/ABI/FD/GEOCOLOR/latest.jpg";
+  const host = "https://cdn.star.nesdis.noaa.gov";
+
   try {
-    const response = await fetch(imageURL);
+    const response = await fetch(host + mainVersion, { mode: "no-cors" });
+
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
-
     const responseObj = {
       blob: await response.blob(),
       lastModified: response.headers.get("last-modified"),
     };
     return responseObj;
   } catch (error) {
-    if (retryCount < maxRetries) {
-      retryCount++;
-      setTimeout(() => {
-        return getImage(imageURL, maxRetries, retryCount);
-      }, 15000);
-    } else {
-      throw new Error(`Failed to fetch image after ${maxRetries} retries`);
+    try {
+      const response = await fetch(host + altVersion);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      const responseObj = {
+        blob: await response.blob(),
+        lastModified: response.headers.get("last-modified"),
+      };
+      return responseObj;
+    } catch (error) {
+      if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(() => {
+          return getImage(maxRetries, retryCount);
+        }, 15000);
+      } else {
+        throw new Error(`Failed to fetch image after ${maxRetries} retries`);
+      }
     }
   }
 }
